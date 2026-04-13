@@ -1,0 +1,29 @@
+// pages/api/auth/login.js
+// ─────────────────────────────────────────────────────────────
+// Step 1 of GitHub OAuth flow.
+// Redirects the user to GitHub's authorization page.
+// GitHub will redirect back to /api/auth/callback after the user approves.
+// ─────────────────────────────────────────────────────────────
+
+export default function handler(req, res) {
+  const clientId = process.env.GITHUB_CLIENT_ID
+
+  if (!clientId) {
+    return res.status(500).json({
+      error: 'GITHUB_CLIENT_ID is not set. Please check your .env.local file.',
+    })
+  }
+
+  // Scopes we need:
+  //   "repo" → create repos, push files
+  //   "user" → read the authenticated user's username
+  const scope = 'repo user'
+
+  const githubAuthUrl =
+    `https://github.com/login/oauth/authorize` +
+    `?client_id=${clientId}` +
+    `&scope=${encodeURIComponent(scope)}`
+
+  // Send the user off to GitHub
+  res.redirect(githubAuthUrl)
+}
